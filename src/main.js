@@ -21,34 +21,88 @@ const scene = new THREE.Scene();
 /**
  * Textures
  */
+let imgAspectRatio = 1;
+
 const textureLoader = new THREE.TextureLoader();
 
-/**
- * Lights
- */
-// // Ambient light
-// const ambientLight = new THREE.AmbientLight(0xffffff, 1);
-// gui.add(ambientLight, "intensity").min(0).max(3).step(0.001);
-// scene.add(ambientLight);
+const bgImgTexture = await textureLoader.loadAsync("/images/bg.jpg");
 
-// // Directional light
-// const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
-// directionalLight.position.set(2, 2, -1);
-// gui.add(directionalLight, "intensity").min(0).max(3).step(0.001);
-// gui.add(directionalLight.position, "x").min(-5).max(5).step(0.001);
-// gui.add(directionalLight.position, "y").min(-5).max(5).step(0.001);
-// gui.add(directionalLight.position, "z").min(-5).max(5).step(0.001);
-// scene.add(directionalLight);
+bgImgTexture.magFilter = THREE.NearestFilter;
+bgImgTexture.minFilter = THREE.NearestFilter;
+bgImgTexture.colorSpace = THREE.SRGBColorSpace;
 
 /**
  * Materials
  */
+
+const mouse = {
+  x: 0.5,
+  y: 0.5,
+};
+
+// Trail system
+const TRAIL_LENGTH = 15; // Number of trail points
+const trailPositions = [];
+const trailStrengths = [];
+
+// Initialize trail arrays with default values
+for (let i = 0; i < TRAIL_LENGTH; i++) {
+  trailPositions.push(0.5, 0.5); // x, y pairs
+  trailStrengths.push(0.0);
+}
+
 const material = new THREE.ShaderMaterial({
+  uniforms: {
+    uTexture: { value: bgImgTexture },
+    uImgAspectRatio: {
+      value: bgImgTexture.image.width / bgImgTexture.image.height,
+    },
+    uCanvasAspectRatio: {
+      value:
+        canvas.getBoundingClientRect().width /
+        canvas.getBoundingClientRect().height,
+    },
+    uCanvasSize: {
+      value: new THREE.Vector2(
+        canvas.getBoundingClientRect().width,
+        canvas.getBoundingClientRect().height
+      ),
+    },
+    uGridSize: { value: 28 },
+    uMouse: { value: new THREE.Vector2(mouse.x, mouse.y) },
+    uTrailPositions: { value: trailPositions },
+    uTrailStrengths: { value: trailStrengths },
+    uTrailLength: { value: TRAIL_LENGTH },
+    uPixelationRadius: { value: 0.125 },
+    uTrailDecay: { value: 0.9 }, // How fast the trail fades (0.9-0.98 works well)
+    uTime: { value: 0 },
+  },
   vertexShader: vertex,
   fragmentShader: fragment,
 });
-// gui.add(material, "metalness").min(0).max(1).step(0.001);
-// gui.add(material, "roughness").min(0).max(1).step(0.001);
+
+gui
+  .add(material.uniforms.uGridSize, "value")
+  .min(1)
+  .max(100)
+  .step(1)
+  .name("GridSize");
+
+gui
+  .add(material.uniforms.uPixelationRadius, "value")
+  .min(0.05)
+  .max(0.3)
+  .step(0.005)
+  .name("Pixelation Radius");
+
+gui
+  .add(material.uniforms.uTrailDecay, "value")
+  .min(0.85)
+  .max(0.99)
+  .step(0.01)
+  .name("Trail Decay");
+
+gui.hide();
 
 /**
  * Objects
@@ -77,25 +131,22 @@ window.addEventListener("resize", () => {
   // Update renderer
   renderer.setSize(sizes.width, sizes.height);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+  // Update canvas aspect ratio
+  material.uniforms.uCanvasAspectRatio.value = sizes.width / sizes.height;
+});
+
+window.addEventListener("mousemove", (e) => {
+  mouse.x = e.clientX / sizes.width;
+  mouse.y = 1 - e.clientY / sizes.height;
 });
 
 /**
  * Camera
  */
-// Base camera
-// const camera = new THREE.PerspectiveCamera(
-//   75,
-//   sizes.width / sizes.height,
-//   0.1,
-//   100
-// );
 const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.01, 1000);
 camera.position.z = 0.5;
 scene.add(camera);
-
-// Controls
-const controls = new OrbitControls(camera, canvas);
-controls.enableDamping = true;
 
 /**
  * Renderer
@@ -110,12 +161,45 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
  * Animate
  */
 const clock = new THREE.Clock();
+let lastMouseX = mouse.x;
+let lastMouseY = mouse.y;
 
 const tick = () => {
   const elapsedTime = clock.getElapsedTime();
 
-  // Update controls
-  controls.update();
+  // Update time
+  material.uniforms.uTime.value = elapsedTime;
+
+  // Calculate mouse movement
+  const deltaX = mouse.x - lastMouseX;
+  const deltaY = mouse.y - lastMouseY;
+  const movement = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+  // Update trail
+  // Shift trail positions
+  for (let i = TRAIL_LENGTH - 1; i > 0; i--) {
+    trailPositions[i * 2] = trailPositions[(i - 1) * 2];
+    trailPositions[i * 2 + 1] = trailPositions[(i - 1) * 2 + 1];
+
+    // Decay strength
+    trailStrengths[i] =
+      trailStrengths[i - 1] * material.uniforms.uTrailDecay.value;
+  }
+
+  // Add new position at the front
+  trailPositions[0] = mouse.x;
+  trailPositions[1] = mouse.y;
+
+  // Set strength based on movement (higher movement = stronger effect)
+  trailStrengths[0] = Math.min(movement * 50, 1.0); // Scale factor to make movement more visible
+
+  // Update uniforms
+  material.uniforms.uMouse.value.set(mouse.x, mouse.y);
+  material.uniforms.uTrailPositions.value = trailPositions;
+  material.uniforms.uTrailStrengths.value = trailStrengths;
+
+  lastMouseX = mouse.x;
+  lastMouseY = mouse.y;
 
   // Render
   renderer.render(scene, camera);
