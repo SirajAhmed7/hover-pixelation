@@ -147,6 +147,11 @@ window.addEventListener("mousemove", (e) => {
   mouse.y = 1 - e.clientY / sizes.height;
 });
 
+window.addEventListener("touchmove", (e) => {
+  mouse.x = e.touches[0].clientX / sizes.width;
+  mouse.y = 1 - e.touches[0].clientY / sizes.height;
+});
+
 /**
  * Camera
  */
