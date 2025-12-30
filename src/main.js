@@ -75,7 +75,7 @@ const material = new THREE.ShaderMaterial({
       value: new THREE.Vector2(sizes.width, sizes.height),
     },
     // uGridSize: { value: 36 },
-    uGridSize: { value: 36 },
+    uGridSize: { value: 44 },
     uMouse: { value: new THREE.Vector2(mouse.x, mouse.y) },
     uTrailPositions: { value: trailPositions },
     uTrailStrengths: { value: trailStrengths },
