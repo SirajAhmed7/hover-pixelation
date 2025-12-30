@@ -25,11 +25,10 @@ let imgAspectRatio = 1;
 
 const textureLoader = new THREE.TextureLoader();
 
-const bgImgTexture = await textureLoader.loadAsync("/images/bg.jpg");
+const bgImgTexture = await textureLoader.loadAsync("/images/bg2.jpg");
 
 bgImgTexture.magFilter = THREE.NearestFilter;
 bgImgTexture.minFilter = THREE.NearestFilter;
-bgImgTexture.colorSpace = THREE.SRGBColorSpace;
 
 /**
  * Materials
@@ -68,13 +67,16 @@ const material = new THREE.ShaderMaterial({
         canvas.getBoundingClientRect().height
       ),
     },
-    uGridSize: { value: 28 },
+    // uGridSize: { value: 36 },
+    uGridSize: { value: 36 },
     uMouse: { value: new THREE.Vector2(mouse.x, mouse.y) },
     uTrailPositions: { value: trailPositions },
     uTrailStrengths: { value: trailStrengths },
     uTrailLength: { value: TRAIL_LENGTH },
-    uPixelationRadius: { value: 0.125 },
-    uTrailDecay: { value: 0.9 }, // How fast the trail fades (0.9-0.98 works well)
+    // uPixelationRadius: { value: 0.115 },
+    // uTrailDecay: { value: 0.9 }, // How fast the trail fades
+    uPixelationRadius: { value: 0.095 },
+    uTrailDecay: { value: 0.99 }, // How fast the trail fades
     uTime: { value: 0 },
   },
   vertexShader: vertex,

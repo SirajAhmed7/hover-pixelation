@@ -24,7 +24,7 @@ void main() {
     uv.x = uv.x * scale + (1.0 - scale) * 0.5;
   }
   
-  // Adjust grid for square pixels
+  // Grid with square pixels
   vec2 grid = vec2(uGridSize * uImgAspectRatio, uGridSize);
   vec2 pixelatedUV = floor(uv * grid) / grid;
   
@@ -37,7 +37,7 @@ void main() {
     // Get trail position
     vec2 trailPos = vec2(uTrailPositions[i * 2], uTrailPositions[i * 2 + 1]);
     
-    // Adjust trail position for aspect ratio
+    // Trail position calculation for aspect ratio
     if (uCanvasAspectRatio > uImgAspectRatio) {
       float scale = uImgAspectRatio / uCanvasAspectRatio;
       trailPos.y = trailPos.y * scale + (1.0 - scale) * 0.5;
@@ -64,5 +64,5 @@ void main() {
   
   vec4 color = texture2D(uTexture, finalUV);
   
-  gl_FragColor = vec4(vec3(color * 1.35), 1.0);
+  gl_FragColor = vec4(vec3(color), 1.0);
 }
