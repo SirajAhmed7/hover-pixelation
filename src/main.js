@@ -6,6 +6,10 @@ import GUI from "lil-gui";
 import vertex from "./shaders/vertex.glsl";
 import fragment from "./shaders/fragment.glsl";
 
+import { inject } from "@vercel/analytics";
+
+inject();
+
 /**
  * Base
  */
