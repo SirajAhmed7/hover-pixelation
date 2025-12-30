@@ -22,6 +22,14 @@ const canvas = document.querySelector("canvas.webgl");
 // Scene
 const scene = new THREE.Scene();
 
+const sizes = {
+  width: window.innerWidth,
+  height: window.innerHeight,
+};
+
+canvas.width = sizes.width;
+canvas.height = sizes.height;
+
 /**
  * Textures
  */
@@ -61,15 +69,10 @@ const material = new THREE.ShaderMaterial({
       value: bgImgTexture.image.width / bgImgTexture.image.height,
     },
     uCanvasAspectRatio: {
-      value:
-        canvas.getBoundingClientRect().width /
-        canvas.getBoundingClientRect().height,
+      value: sizes.width / sizes.height,
     },
     uCanvasSize: {
-      value: new THREE.Vector2(
-        canvas.getBoundingClientRect().width,
-        canvas.getBoundingClientRect().height
-      ),
+      value: new THREE.Vector2(sizes.width, sizes.height),
     },
     // uGridSize: { value: 36 },
     uGridSize: { value: 36 },
@@ -118,13 +121,8 @@ const plane = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
 scene.add(plane);
 
 /**
- * Sizes
+ * Event listeners
  */
-const sizes = {
-  width: window.innerWidth,
-  height: window.innerHeight,
-};
-
 window.addEventListener("resize", () => {
   // Update sizes
   sizes.width = window.innerWidth;
