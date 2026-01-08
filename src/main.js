@@ -1,7 +1,6 @@
 import "./style.css";
 
 import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import GUI from "lil-gui";
 import vertex from "./shaders/vertex.glsl";
 import fragment from "./shaders/fragment.glsl";
@@ -90,28 +89,28 @@ const material = new THREE.ShaderMaterial({
   fragmentShader: fragment,
 });
 
-gui
-  .add(material.uniforms.uGridSize, "value")
-  .min(1)
-  .max(100)
-  .step(1)
-  .name("GridSize");
+// gui
+//   .add(material.uniforms.uGridSize, "value")
+//   .min(1)
+//   .max(100)
+//   .step(1)
+//   .name("GridSize");
 
-gui
-  .add(material.uniforms.uPixelationRadius, "value")
-  .min(0.05)
-  .max(0.3)
-  .step(0.005)
-  .name("Pixelation Radius");
+// gui
+//   .add(material.uniforms.uPixelationRadius, "value")
+//   .min(0.05)
+//   .max(0.3)
+//   .step(0.005)
+//   .name("Pixelation Radius");
 
-gui
-  .add(material.uniforms.uTrailDecay, "value")
-  .min(0.85)
-  .max(0.99)
-  .step(0.01)
-  .name("Trail Decay");
+// gui
+//   .add(material.uniforms.uTrailDecay, "value")
+//   .min(0.85)
+//   .max(0.99)
+//   .step(0.01)
+//   .name("Trail Decay");
 
-gui.hide();
+// gui.hide();
 
 /**
  * Objects
