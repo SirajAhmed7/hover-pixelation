@@ -110,7 +110,7 @@ const material = new THREE.ShaderMaterial({
 //   .step(0.01)
 //   .name("Trail Decay");
 
-// gui.hide();
+gui.hide();
 
 /**
  * Objects
